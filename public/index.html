@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Xtok</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>XTOK</h1>
+      <p>Gestão de Estoque</p>
+    </header>
+
+    <main>
+      <section class="cadastro">
+        <h2>Cadastrar Produto</h2>
+
+        <form id="formProduto">
+          <div class="campo">
+            <label for="nome">Nome do produto</label>
+            <input
+              type="text"
+              id="nome"
+              placeholder="Ex: Teclado Mecânico"
+              required
+            />
+          </div>
+
+          <div class="campo">
+            <label for="quantidade">Quantidade</label>
+            <input
+              type="number"
+              id="quantidade"
+              placeholder="Ex: 10"
+              min="0"
+              required
+            />
+          </div>
+
+          <div class="campo">
+            <label for="preco">Preço</label>
+            <input
+              type="number"
+              id="preco"
+              placeholder="Ex: 150.00"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <button type="submit">Cadastrar Produto</button>
+        </form>
+      </section>
+
+      <section class="estoque">
+        <h2>Produtos em Estoque</h2>
+
+        <div id="listaProdutos">
+          <!-- Os produtos serão carregados pelo JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>XTOK - Projeto de aprendizado</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
