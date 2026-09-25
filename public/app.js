@@ -1,47 +1,36 @@
-const API_URL = '/api/produtos';
-
+const API_URL = "/api/produtos";
 
 // Buscar produtos da API
 async function carregarProdutos() {
+  try {
+    const resposta = await fetch(API_URL);
 
-    try {
+    const produtos = await resposta.json();
 
-        const resposta = await fetch(API_URL);
-
-        const produtos = await resposta.json();
-
-        mostrarProdutos(produtos);
-
-    } catch (erro) {
-
-        console.error('Erro ao carregar produtos:', erro);
-
-    }
+    mostrarProdutos(produtos);
+  } catch (erro) {
+    console.error("Erro ao carregar produtos:", erro);
+  }
 }
-
 
 // Mostrar produtos na tela
 function mostrarProdutos(produtos) {
+  const lista = document.getElementById("listaProdutos");
 
-    const lista = document.getElementById('listaProdutos');
+  lista.innerHTML = "";
 
-    lista.innerHTML = '';
+  if (produtos.length === 0) {
+    lista.innerHTML = "<p>Nenhum produto cadastrado.</p>";
 
-    if (produtos.length === 0) {
+    return;
+  }
 
-        lista.innerHTML = '<p>Nenhum produto cadastrado.</p>';
+  produtos.forEach((produto) => {
+    const elemento = document.createElement("div");
 
-        return;
-    }
+    elemento.classList.add("produto");
 
-
-    produtos.forEach(produto => {
-
-        const elemento = document.createElement('div');
-
-        elemento.classList.add('produto');
-
-        elemento.innerHTML = `
+    elemento.innerHTML = `
             <h3>${produto.nome}</h3>
 
             <p>
@@ -53,92 +42,106 @@ function mostrarProdutos(produtos) {
                 <strong>Preço:</strong>
                 R$ ${Number(produto.preco).toFixed(2)}
             </p>
+
+            <button onclick="excluirProduto(${produto.id})">
+                Excluir
+            </button>
         `;
 
-        lista.appendChild(elemento);
-
-    });
+    lista.appendChild(elemento);
+  });
 }
 
+// Excluir produto
+async function excluirProduto(id) {
+  const confirmar = confirm("Deseja realmente excluir este produto?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  try {
+    const resposta = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!resposta.ok) {
+      const erro = await resposta.json();
+
+      alert(erro.error);
+
+      return;
+    }
+
+    const resultado = await resposta.json();
+
+    console.log(resultado.mensagem);
+
+    carregarProdutos();
+  } catch (erro) {
+    console.error("Erro ao excluir produto:", erro);
+
+    alert("Não foi possível excluir o produto.");
+  }
+}
 
 // Cadastrar produto
 async function cadastrarProduto(evento) {
+  evento.preventDefault();
 
-    evento.preventDefault();
+  const nome = document.getElementById("nome").value;
 
+  const quantidade = document.getElementById("quantidade").value;
 
-    const nome = document.getElementById('nome').value;
+  const preco = document.getElementById("preco").value;
 
-    const quantidade = document.getElementById('quantidade').value;
+  const novoProduto = {
+    nome: nome,
 
-    const preco = document.getElementById('preco').value;
+    quantidade: Number(quantidade),
 
+    preco: Number(preco),
+  };
 
-    const novoProduto = {
+  try {
+    const resposta = await fetch(API_URL, {
+      method: "POST",
 
-        nome: nome,
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-        quantidade: Number(quantidade),
+      body: JSON.stringify(novoProduto),
+    });
 
-        preco: Number(preco)
+    if (!resposta.ok) {
+      const erro = await resposta.json();
 
-    };
+      alert(erro.error);
 
-
-    try {
-
-        const resposta = await fetch(API_URL, {
-
-            method: 'POST',
-
-            headers: {
-                'Content-Type': 'application/json'
-            },
-
-            body: JSON.stringify(novoProduto)
-
-        });
-
-
-        if (!resposta.ok) {
-
-            const erro = await resposta.json();
-
-            alert(erro.error);
-
-            return;
-        }
-
-
-        const produtoCriado = await resposta.json();
-
-        console.log('Produto cadastrado:', produtoCriado);
-
-
-        // Limpa o formulário
-        document.getElementById('formProduto').reset();
-
-
-        // Atualiza a lista
-        carregarProdutos();
-
-
-    } catch (erro) {
-
-        console.error('Erro ao cadastrar produto:', erro);
-
-        alert('Não foi possível cadastrar o produto.');
-
+      return;
     }
 
-}
+    const produtoCriado = await resposta.json();
 
+    console.log("Produto cadastrado:", produtoCriado);
+
+    // Limpa o formulário
+    document.getElementById("formProduto").reset();
+
+    // Atualiza a lista
+    carregarProdutos();
+  } catch (erro) {
+    console.error("Erro ao cadastrar produto:", erro);
+
+    alert("Não foi possível cadastrar o produto.");
+  }
+}
 
 // Quando o formulário for enviado
 document
-    .getElementById('formProduto')
-    .addEventListener('submit', cadastrarProduto);
-
+  .getElementById("formProduto")
+  .addEventListener("submit", cadastrarProduto);
 
 // Carregar produtos quando a página abrir
 carregarProdutos();
